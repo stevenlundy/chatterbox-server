@@ -11,6 +11,7 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+var messageLog = require("./message-log.js");
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -28,7 +29,21 @@ var requestHandler = function(request, response) {
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
   console.log("Serving request type " + request.method + " for url " + request.url);
+  if(request.method === 'POST'){
 
+    
+    request.on('data', function(chunk) {
+      console.log("Received body data:");
+      console.log(chunk.toString());
+      messageLog.write(JSON.parse(chunk.toString()));
+    });
+    
+    request.on('end', function() {
+      // empty 200 OK response for now
+      response.writeHead(200, "OK", {'Content-Type': 'text/html'});
+      response.end();
+    });
+  }
   // The outgoing status.
   var statusCode = 200;
 
@@ -71,3 +86,4 @@ var defaultCorsHeaders = {
   "access-control-max-age": 10 // Seconds.
 };
 
+module.exports.requestHandler = requestHandler;
