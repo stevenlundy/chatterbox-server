@@ -61,6 +61,8 @@ var app = {
     $.ajax({
       url: this.server,
       type: 'GET',
+      contentType: 'application/json',
+      data: { order: '-createdAt'},
       success: function (data) {
         results = data.results;
         for(var i = results.length - 1; i >= 0; i --) {

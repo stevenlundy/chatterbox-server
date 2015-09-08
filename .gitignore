@@ -44,3 +44,4 @@ client/env/config.js
 
 ### Chat log ###
 server/messageLog.JSON
+express_server/messageLog.JSON
