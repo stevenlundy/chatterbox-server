@@ -12,6 +12,32 @@ this file and include it in basic-server.js so that it actually works.
 
 **************************************************************/
 var messageLog = require("./message-log.js");
+var fs = require("fs");
+var path = require('path');
+var mime = require('mime');
+
+var messageHandler = function(request, response){
+  var headers = defaultCorsHeaders;
+  headers['Content-Type'] = "application/json";
+  if(request.method === 'POST'){
+    response.writeHead(201, headers);
+    var messageData = '';
+    request.on('data', function(chunk) {
+      messageData += chunk;
+    });
+
+    request.on('end', function(){
+      messageLog.write(JSON.parse(messageData));
+    });
+    response.end("{}");
+  } else if(request.method === 'GET'){
+    response.writeHead(200, headers);
+    response.end(JSON.stringify({ results: messageLog.read() }));
+  } else {
+    response.writeHead(200, headers);
+    response.end("{}");
+  } 
+};
 
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
@@ -35,30 +61,34 @@ var requestHandler = function(request, response) {
   headers['Content-Type'] = "application/json";
 
   if(request.url.indexOf('/classes/') !== -1){
-    if(request.method === 'POST'){
-      response.writeHead(201, headers);
-      var messageData = '';
-      request.on('data', function(chunk) {
-        messageData += chunk;
-      });
-
-      request.on('end', function(){
-        messageLog.write(JSON.parse(messageData));
-      });
-      response.end("{}");
-    } else if(request.method === 'GET'){
-      response.writeHead(200, headers);
-      response.end(JSON.stringify({ results: messageLog.read() }));
-    } else {
-      response.writeHead(200, headers);
-      response.end("{}");
-    }
+    messageHandler(request, response);
   } else {
-      response.writeHead(404, headers);
-      response.end("{}");
+    
+    headers['Content-Type'] = "text/html";
+    //if URL is empty - build index file URL
+    //else, build other URL
+    var fileName = '';
+    var subURL = request.url.split('?')[0];
+    if(subURL === '/'){
+      fileName = path.join(__dirname, '../client/index.html');
+    } else {
+      fileName = path.join(__dirname, '../client/' + subURL);
+    }
+    fs.readFile(fileName, function(err, data){
+      if(!err){
+        headers['Content-Type'] = mime.lookup(fileName);
+        response.writeHead(200, headers);
+        response.end(data.toString());
+      } else {
+        response.writeHead(404, headers);
+        response.end("File not found");
+      }
+    });
+
   }
 };
 
+//'../client/' + subURL
 // These headers will allow Cross-Origin Resource Sharing (CORS).
 // This code allows this server to talk to websites that
 // are on different domains, for instance, your chat client.

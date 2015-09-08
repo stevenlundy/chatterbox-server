@@ -41,3 +41,6 @@ node_modules
 
 ### API Keys ###
 client/env/config.js
+
+### Chat log ###
+server/messageLog.JSON
