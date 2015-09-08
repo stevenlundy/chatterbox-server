@@ -1,6 +1,6 @@
 
 var app = {
-  server: 'http://127.0.0.1:3000/classes/chatterbox',
+  server: 'http://hr6-11.local:3000/classes/chatterbox',
   messages: {},
   chatBox: document.getElementById("chats"),
   room: null,
@@ -278,5 +278,6 @@ window.setInterval(function() {
 }, 1000);
 
 var colorify = function(name) {
-  return "#" + md5(name).match(/(.{2})/g).slice(0, 3).join("");
+  return "hsl(" + (parseInt(md5(name), 16)%360) +",70%,50%)"
+  //return "#" + md5(name).match(/(.{2})/g).slice(0, 3).join("");
 }

@@ -25,7 +25,6 @@ app.get('/classes/*', function(req, res){
 app.post('/classes/*', function(req, res){
   messageLog.write(req.body);
   res.sendStatus(201);
-  res.send("You did it!");
 
 });
 
