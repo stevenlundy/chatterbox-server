@@ -15,6 +15,8 @@ var messageLog = require("./message-log.js");
 var fs = require("fs");
 var path = require('path');
 var mime = require('mime');
+var url = require('url');
+
 
 var messageHandler = function(request, response){
   var headers = defaultCorsHeaders;
@@ -31,8 +33,26 @@ var messageHandler = function(request, response){
     });
     response.end("{}");
   } else if(request.method === 'GET'){
+    var params = url.parse(request.url, true).query;
+    var results = messageLog.read();
+    if(params.order){
+      results.sort(function(a, b){
+        var multiplier = 1;
+        if (params.order.charAt(0) == '-'){
+          multiplier = -1;
+          params.order = params.order.substr(1);
+        }
+        if(a[params.order] < b[params.order]){
+          return 1 * multiplier;
+        } else if (a[params.order] === b[params.order]){
+          return 0;
+        } else {
+          return -1 * multiplier;
+        }
+      });
+    }
     response.writeHead(200, headers);
-    response.end(JSON.stringify({ results: messageLog.read() }));
+    response.end(JSON.stringify({ results: results }));
   } else {
     response.writeHead(200, headers);
     response.end("{}");

@@ -3,7 +3,7 @@ var app = {
 
   //TODO: The current 'addFriend' function just adds the class 'friend'
   //to all messages sent by the user
-  server: 'http://127.0.0.1:3000/1/classes/chatterbox/',
+  server: 'http://127.0.0.1:3000/1/classes/chatterbox/', //10.6.1.25
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -229,11 +229,11 @@ var app = {
 
   startSpinner: function(){
     $('.spinner img').show();
-    // $('form input[type=submit]').attr('disabled', "true");
+    $('form input[type=submit]').attr('disabled', "true");
   },
 
   stopSpinner: function(){
     $('.spinner img').fadeOut('fast');
-    // $('form input[type=submit]').attr('disabled', null);
+    $('form input[type=submit]').attr('disabled', null);
   }
 };
