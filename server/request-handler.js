@@ -29,45 +29,34 @@ var requestHandler = function(request, response) {
   // debugging help, but you should always be careful about leaving stray
   // console.logs in your code.
   console.log("Serving request type " + request.method + " for url " + request.url);
-  if(request.method === 'POST'){
 
-    
-    request.on('data', function(chunk) {
-      console.log("Received body data:");
-      console.log(chunk.toString());
-      messageLog.write(JSON.parse(chunk.toString()));
-    });
-    
-    request.on('end', function() {
-      // empty 200 OK response for now
-      response.writeHead(200, "OK", {'Content-Type': 'text/html'});
-      response.end();
-    });
-  }
-  // The outgoing status.
-  var statusCode = 200;
-
-  // See the note below about CORS headers.
   var headers = defaultCorsHeaders;
 
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = "text/plain";
+  headers['Content-Type'] = "application/json";
 
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
+  if(request.url.indexOf('/classes/') !== -1){
+    if(request.method === 'POST'){
+      response.writeHead(201, headers);
+      var messageData = '';
+      request.on('data', function(chunk) {
+        messageData += chunk;
+      });
 
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
-  response.end("Hello, World!");
+      request.on('end', function(){
+        messageLog.write(JSON.parse(messageData));
+      });
+      response.end("{}");
+    } else if(request.method === 'GET'){
+      response.writeHead(200, headers);
+      response.end(JSON.stringify({ results: messageLog.read() }));
+    } else {
+      response.writeHead(200, headers);
+      response.end("{}");
+    }
+  } else {
+      response.writeHead(404, headers);
+      response.end("{}");
+  }
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
